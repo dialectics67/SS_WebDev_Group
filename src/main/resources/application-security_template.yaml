@@ -1,0 +1,14 @@
+security:
+  datasource:
+    password:
+    host:
+  redis:
+    host:
+    password:
+  rabbitmq:
+    host:
+    port:
+    username:
+    password:
+  jwt:
+    signature:

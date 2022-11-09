@@ -1,0 +1,48 @@
+server:
+  port: 8088
+  servlet:
+    context-path: /
+spring:
+  profiles:
+    include: security
+  datasource:
+    url: jdbc:mysql://${security.datasource.host}:3306/ss_web?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=UTC
+    username: root
+    password: ${security.datasource.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+  redis:
+    host: ${security.redis.host}
+    port: 6379
+    password: ${security.redis.password}
+    # 连接超时时间（记得添加单位，Duration）
+    timeout: 10000ms
+    # Redis默认情况下有16个分片，这里配置具体使用的分片
+    # database: 0
+    lettuce:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制） 默认 8
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+        max-wait: -1ms
+        # 连接池中的最大空闲连接 默认 8
+        max-idle: 8
+        # 连接池中的最小空闲连接 默认 0
+        min-idle: 0
+  rabbitmq:
+    host: ${security.rabbitmq.host}
+    port: ${security.rabbitmq.port}
+    username: ${security.rabbitmq.username}
+    password: ${security.rabbitmq.password}
+    virtual-host: /
+    # 手动提交消息
+    listener:
+      simple:
+        acknowledge-mode: manual
+  cache:
+    # 一般来说是不用配置的，Spring Cache 会根据依赖的包自行装配
+    type: redis
+jwt:
+  signature: ${security.jwt.signature}
+  accessTokenExpireTime: 1200 # (s)
+  refreshTokenExpireTime: 2400 # (s)
