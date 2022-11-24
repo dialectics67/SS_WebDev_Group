@@ -6,14 +6,14 @@ spring:
   profiles:
     include: security
   datasource:
-    url: jdbc:mysql://${security.datasource.host}:3306/ss_web?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=UTC
-    username: root
+    url: jdbc:mysql://${security.datasource.host}:3306/dormitory?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true&failOverReadOnly=false&serverTimezone=UTC
+    username: ${security.datasource.username}
     password: ${security.datasource.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
   redis:
     host: ${security.redis.host}
-    port: 6379
+    port: ${security.redis.port}
     password: ${security.redis.password}
     # 连接超时时间（记得添加单位，Duration）
     timeout: 10000ms
@@ -43,6 +43,7 @@ spring:
     # 一般来说是不用配置的，Spring Cache 会根据依赖的包自行装配
     type: redis
 jwt:
-  signature: ${security.jwt.signature}
+  accessSignature: ${security.jwt.accessSignature}
+  refreshSignature: ${security.jwt.refreshSignature}
   accessTokenExpireTime: 1200 # (s)
   refreshTokenExpireTime: 2400 # (s)
