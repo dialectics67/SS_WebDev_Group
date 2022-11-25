@@ -20,9 +20,11 @@ public interface BuildingsService {
 
     void deleteById(Integer id);
 
+    List<BuildingsEntity> findAllByIsValidAndIsDelOrderByOrderNum(Integer isValid, Integer isDel);
+
     Optional<BuildingsEntity> findById(Integer id);
 
-    List<BuildingsEntity> findById(Collection<Integer> ids);
+    List<BuildingsEntity> findById(Collection<Integer> ids, Integer is_valid, Integer is_del);
 
 }
 

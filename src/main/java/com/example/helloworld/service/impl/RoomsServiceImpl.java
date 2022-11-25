@@ -7,9 +7,7 @@ import com.example.helloworld.service.RoomsService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -37,6 +35,21 @@ public class RoomsServiceImpl implements RoomsService {
     }
 
     @Override
+    public List<RoomsEntity> findAllByIsValidAndIsDelOrderByOrderNum(Integer is_valid, Integer is_del) {
+        return roomsRepository.findAllByIsValidAndIsDelOrderByOrderNum(is_valid, is_del);
+    }
+
+    @Override
+    public List<RoomsEntity> findAllByGender(Integer gender, Integer is_valid, Integer is_del) {
+        return roomsRepository.findAllByGenderAndIsValidAndIsDelOrderByOrderNum(gender, is_valid, is_del);
+    }
+
+    @Override
+    public List<RoomsEntity> findAllByBuildingIdAndGender(Collection<Integer> buildingIds, Integer gender, Integer is_valid, Integer is_del) {
+        return roomsRepository.findAllByBuildingIdInAndGenderAndIsValidAndIsDelOrderByOrderNum(buildingIds, gender, is_valid, is_del);
+    }
+
+    @Override
     public Optional<RoomsEntity> findById(Integer id) {
         return roomsRepository.findById(id);
     }
@@ -46,6 +59,18 @@ public class RoomsServiceImpl implements RoomsService {
         Iterable<RoomsEntity> iterable = roomsRepository.findAllById(ids);
         return StreamSupport.stream(iterable.spliterator(), false)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Set<Integer> findAllBuildingIdByGender(Integer gender, Integer is_valid, Integer is_del) {
+        // 根据性别查找所有房间
+        List<RoomsEntity> roomEntityList = this.findAllByGender(gender, is_valid, is_del);
+        // 统计楼号
+        Set<Integer> buildingIdSet = new HashSet<>();
+        for (RoomsEntity roomEntity : roomEntityList) {
+            buildingIdSet.add(roomEntity.getBuildingId());
+        }
+        return buildingIdSet;
     }
 
 }

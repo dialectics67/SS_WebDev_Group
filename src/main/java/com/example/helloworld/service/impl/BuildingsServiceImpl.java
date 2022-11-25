@@ -37,13 +37,18 @@ public class BuildingsServiceImpl implements BuildingsService {
     }
 
     @Override
+    public List<BuildingsEntity> findAllByIsValidAndIsDelOrderByOrderNum(Integer isValid, Integer isDel) {
+        return buildingsRepository.findAllByIsValidAndIsDelOrderByOrderNum(isValid, isDel);
+    }
+
+    @Override
     public Optional<BuildingsEntity> findById(Integer id) {
         return buildingsRepository.findById(id);
     }
 
     @Override
-    public List<BuildingsEntity> findById(Collection<Integer> ids) {
-        Iterable<BuildingsEntity> iterable = buildingsRepository.findAllById(ids);
+    public List<BuildingsEntity> findById(Collection<Integer> ids, Integer is_valid, Integer is_del) {
+        Iterable<BuildingsEntity> iterable = buildingsRepository.findByIdInAndIsValidAndIsDelOrderByOrderNum(ids, is_valid, is_del);
         return StreamSupport.stream(iterable.spliterator(), false)
                 .collect(Collectors.toList());
     }

@@ -8,6 +8,11 @@ public class Consts {
     /**
      * 存储基本常量的值
      */
+    public static int IS_VALID = 1; //数据库的is_valid为有效所对应的值
+    public static int IS_NOT_VALID = 0; //数据库的is_valid为无效所对应的值
+    public static int IS_DEL = 1; //数据库的is_del表示删除所对应的值
+    public static int IS_NOT_DEL = 0; //数据库的is_del表示没有删除所对应的值
+
     public static int MAX_LEN_USERNAME = 50;  // 用户名的最大长度
     public static int MAX_LEN_PASSWORD = 50; // 明文密码的最大长度
     public static int MAX_LEN_EX_PASSWORD = 32; // 密文密码的长度，MD5加密固定为128bit,32位字符串

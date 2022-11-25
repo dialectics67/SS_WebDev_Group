@@ -42,6 +42,11 @@ public class SysServiceImpl implements SysService {
     }
 
     @Override
+    public Optional<SysEntity> findByKeyName(String keyName) {
+        return sysRepository.findByKeyName(keyName);
+    }
+
+    @Override
     public List<SysEntity> findById(Collection<Integer> ids) {
         Iterable<SysEntity> iterable = sysRepository.findAllById(ids);
         return StreamSupport.stream(iterable.spliterator(), false)

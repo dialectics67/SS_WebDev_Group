@@ -20,9 +20,11 @@ public interface BedsService {
 
     void deleteById(Integer id);
 
+    List<BedsEntity> findAllByIsValidAndIsDelOrderByOrderNum(Integer is_valid, Integer is_del);
+
     Optional<BedsEntity> findById(Integer id);
 
-    List<BedsEntity> findById(Collection<Integer> ids);
+    List<BedsEntity> findByRoomId(Collection<Integer> ids, Integer is_valid, Integer is_del);
 
 }
 

@@ -22,6 +22,8 @@ public interface SysService {
 
     Optional<SysEntity> findById(Integer id);
 
+    Optional<SysEntity> findByKeyName(String keyName);
+
     List<SysEntity> findById(Collection<Integer> ids);
 
 }
