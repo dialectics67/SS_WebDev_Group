@@ -3,6 +3,8 @@ package com.example.helloworld.utils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 
+import java.time.Instant;
+
 @Component
 public class CommonUtil {
     /**
@@ -13,6 +15,9 @@ public class CommonUtil {
         return DigestUtils.md5DigestAsHex(origin.getBytes());
     }
 
+    public Integer getUnixTimestamp() {
+        return (int) Instant.now().getEpochSecond();
+    }
     /**
      * 获得用于前端显示的user的json，使用utf8编码，过滤掉一些字段
      *

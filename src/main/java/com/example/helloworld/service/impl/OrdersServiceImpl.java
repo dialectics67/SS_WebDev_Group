@@ -48,5 +48,10 @@ public class OrdersServiceImpl implements OrdersService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<OrdersEntity> findAllByUid(Integer uid) {
+        return ordersRepository.findAllByUid(uid);
+    }
+
 }
 

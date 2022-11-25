@@ -14,4 +14,6 @@ public interface RoomsRepository extends CrudRepository<RoomsEntity, Integer> {
     List<RoomsEntity> findAllByIsValidAndIsDelOrderByOrderNum(Integer is_valid, Integer is_del);
 
     List<RoomsEntity> findAllByBuildingIdInAndGenderAndIsValidAndIsDelOrderByOrderNum(Collection<Integer> buildingIds, Integer gender, Integer is_valid, Integer is_del);
+
+    List<RoomsEntity> findAllByBuildingIdAndGenderAndIsValidAndIsDelOrderByOrderNum(Integer buildingId, Integer gender, Integer isValid, Integer isDel);
 }

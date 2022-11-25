@@ -24,7 +24,13 @@ public interface BedsService {
 
     Optional<BedsEntity> findById(Integer id);
 
+    List<BedsEntity> findByRoomId(Integer roomId, Integer is_valid, Integer is_del);
+
     List<BedsEntity> findByRoomId(Collection<Integer> ids, Integer is_valid, Integer is_del);
+
+    Optional<BedsEntity> findByUidAndStatusAndIsValidAndIsDel(Integer uid, Integer status, Integer is_valid, Integer is_del);
+
+    Integer countByRoomIdAndStatusAndIsValidAndIsDel(Integer roomId, Integer status, Integer isValid, Integer isDel);
 
 }
 

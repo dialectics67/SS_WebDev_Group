@@ -12,6 +12,14 @@ public class Consts {
     public static int IS_NOT_VALID = 0; //数据库的is_valid为无效所对应的值
     public static int IS_DEL = 1; //数据库的is_del表示删除所对应的值
     public static int IS_NOT_DEL = 0; //数据库的is_del表示没有删除所对应的值
+    public static int ORDER_STATUS_WAIT = 0; // 订单处理状态，未处理
+    public static int ORDER_STATUS_OK = 1;  // 订单处理状态，成功
+    public static int ORDER_STATUS_FAILED = 2;  // 订单处理状态，失败
+
+    public static int BED_STATUS_EMPTY = 0; // 表示床位的状态，未使用
+    public static int BED_STATUS_USED = 1; // 表示床位的状态，使用
+
+    public static int UID_NULL = 0; // 无效的uid
 
     public static int MAX_LEN_USERNAME = 50;  // 用户名的最大长度
     public static int MAX_LEN_PASSWORD = 50; // 明文密码的最大长度

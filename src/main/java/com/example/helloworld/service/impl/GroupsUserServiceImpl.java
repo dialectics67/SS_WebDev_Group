@@ -48,5 +48,15 @@ public class GroupsUserServiceImpl implements GroupsUserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Optional<GroupsUserEntity> findByUid(Integer uid, Integer is_del) {
+        return groupsUserRepository.findByUidAndIsDel(uid, is_del);
+    }
+
+    @Override
+    public List<GroupsUserEntity> findAllByGroupIdAndIsDel(Integer group_id, Integer is_del) {
+        return groupsUserRepository.findAllByGroupIdAndIsDel(group_id, is_del);
+    }
+
 }
 

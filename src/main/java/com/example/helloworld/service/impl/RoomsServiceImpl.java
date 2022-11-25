@@ -73,5 +73,10 @@ public class RoomsServiceImpl implements RoomsService {
         return buildingIdSet;
     }
 
+    @Override
+    public List<RoomsEntity> findAllByBuildingIdAndGenderAndIsValidAndIsDel(Integer buildingId, Integer gender, Integer isValid, Integer isDel) {
+        return roomsRepository.findAllByBuildingIdAndGenderAndIsValidAndIsDelOrderByOrderNum(buildingId, gender, isValid, isDel);
+    }
+
 }
 

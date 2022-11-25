@@ -20,7 +20,7 @@ public class SysEntity {
     @Column(name = "is_del", nullable = false)
     private Integer isDel;
     @Basic
-    @Column(name = "remarks", nullable = false, length = 1000)
+    @Column(name = "remarks", nullable = true, length = 1000)
     private String remarks;
 
     public Integer getId() {

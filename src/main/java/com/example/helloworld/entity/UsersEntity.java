@@ -35,7 +35,7 @@ public class UsersEntity {
     @Column(name = "last_login_time", nullable = false)
     private Integer lastLoginTime;
     @Basic
-    @Column(name = "remarks", nullable = false, length = 1000)
+    @Column(name = "remarks", nullable = true, length = 1000)
     private String remarks;
     @Basic
     @Column(name = "is_del", nullable = false)

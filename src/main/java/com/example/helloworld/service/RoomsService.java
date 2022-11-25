@@ -34,8 +34,7 @@ public interface RoomsService {
     // 查找所有含有指定性别房间的楼层
     Set<Integer> findAllBuildingIdByGender(Integer gender, Integer is_valid, Integer is_del);
 
-    // 筛除所有不能住的宿舍
-
+    List<RoomsEntity> findAllByBuildingIdAndGenderAndIsValidAndIsDel(Integer buildingId, Integer gender, Integer isValid, Integer isDel);
 
 }
 

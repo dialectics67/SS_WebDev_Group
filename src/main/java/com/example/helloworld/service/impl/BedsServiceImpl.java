@@ -3,8 +3,6 @@ package com.example.helloworld.service.impl;
 
 import com.example.helloworld.entity.BedsEntity;
 import com.example.helloworld.repository.BedsRepository;
-import com.example.helloworld.repository.BuildingsRepository;
-import com.example.helloworld.repository.RoomsRepository;
 import com.example.helloworld.service.BedsService;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +20,9 @@ import java.util.Optional;
  */
 @Service
 public class BedsServiceImpl implements BedsService {
-    @Resource
-    private BuildingsRepository buildingsRepository;
-    @Resource
-    private BedsRepository bedsRepository;
 
     @Resource
-    private RoomsRepository roomsRepository;
+    private BedsRepository bedsRepository;
 
     @Override
     public void save(BedsEntity beds) {
@@ -51,8 +45,23 @@ public class BedsServiceImpl implements BedsService {
     }
 
     @Override
+    public List<BedsEntity> findByRoomId(Integer roomId, Integer is_valid, Integer is_del) {
+        return bedsRepository.findAllByRoomIdAndIsValidAndIsDel(roomId, is_valid, is_del);
+    }
+
+    @Override
     public List<BedsEntity> findByRoomId(Collection<Integer> roomIds, Integer is_valid, Integer is_del) {
         return bedsRepository.findAllByRoomIdInAndIsValidAndIsDel(roomIds, is_valid, is_del);
+    }
+
+    @Override
+    public Optional<BedsEntity> findByUidAndStatusAndIsValidAndIsDel(Integer uid, Integer status, Integer is_valid, Integer is_del) {
+        return bedsRepository.findByUidAndStatusAndIsValidAndIsDel(uid, status, is_valid, is_del);
+    }
+
+    @Override
+    public Integer countByRoomIdAndStatusAndIsValidAndIsDel(Integer roomId, Integer status, Integer isValid, Integer isDel) {
+        return bedsRepository.countByRoomIdAndStatusAndIsValidAndIsDel(roomId, status, isValid, isDel);
     }
 }
 

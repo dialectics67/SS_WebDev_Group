@@ -12,4 +12,5 @@ public interface BuildingsRepository extends CrudRepository<BuildingsEntity, Int
     List<BuildingsEntity> findByIdInAndIsValidAndIsDelOrderByOrderNum(Collection<Integer> id, Integer isValid, Integer isDel);
 
     List<BuildingsEntity> findAllByIsValidAndIsDelOrderByOrderNum(Integer isValid, Integer isDel);
+
 }

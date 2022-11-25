@@ -1,11 +1,12 @@
 package com.example.helloworld.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "orders", schema = "dormitory")
-public class OrdersEntity {
+public class OrdersEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
@@ -32,7 +33,7 @@ public class OrdersEntity {
     @Column(name = "room_id", nullable = false)
     private Integer roomId;
     @Basic
-    @Column(name = "remarks", nullable = false, length = 1000)
+    @Column(name = "remarks", nullable = true, length = 1000)
     private String remarks;
     @Basic
     @Column(name = "is_del", nullable = false)
@@ -40,6 +41,27 @@ public class OrdersEntity {
     @Basic
     @Column(name = "status", nullable = false)
     private Integer status;
+    @Basic
+    @Column(name = "result_content", nullable = false, length = 1000)
+    private String resultContent;
+
+    public OrdersEntity() {
+        roomId = -1;
+        groupId = 0;
+        finishTime = 0;
+        isDel = 0;
+        status = 0;
+        resultContent = "Waiting for processing";
+
+    }
+
+    public String getResultContent() {
+        return resultContent;
+    }
+
+    public void setResultContent(String resultContent) {
+        this.resultContent = resultContent;
+    }
 
     public Integer getId() {
         return id;

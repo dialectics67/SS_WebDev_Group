@@ -2,12 +2,12 @@ package com.example.helloworld.config;
 
 import com.example.helloworld.constants.RabbitConsts;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.amqp.core.*;
 
 @Slf4j
 @Configuration
@@ -37,6 +37,6 @@ public class RabbitMqConfig {
      */
     @Bean
     public Queue directOneQueue() {
-        return new Queue(RabbitConsts.SIMPLE_MODE_QUEUE_SUBMISSION,true);
+        return new Queue(RabbitConsts.SIMPLE_MODE_QUEUE_SUBMISSION, true);
     }
 }
