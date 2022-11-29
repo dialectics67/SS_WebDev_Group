@@ -45,12 +45,12 @@ public class BedsServiceImpl implements BedsService {
     }
 
     @Override
-    public List<BedsEntity> findByRoomId(Integer roomId, Integer is_valid, Integer is_del) {
-        return bedsRepository.findAllByRoomIdAndIsValidAndIsDel(roomId, is_valid, is_del);
+    public List<BedsEntity> findAllByRoomId(Integer roomId, Integer status, Integer is_valid, Integer is_del) {
+        return bedsRepository.findAllByRoomIdAndStatusAndIsValidAndIsDel(roomId, status, is_valid, is_del);
     }
 
     @Override
-    public List<BedsEntity> findByRoomId(Collection<Integer> roomIds, Integer is_valid, Integer is_del) {
+    public List<BedsEntity> findAllByRoomId(Collection<Integer> roomIds, Integer is_valid, Integer is_del) {
         return bedsRepository.findAllByRoomIdInAndIsValidAndIsDel(roomIds, is_valid, is_del);
     }
 

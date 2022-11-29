@@ -140,17 +140,15 @@ public class OrdersHandler {
                     } else {
                         // 成功啦！
                         RoomsEntity roomsEntity = targetRoom.get();
-                        List<BedsEntity> bedsEntityList = bedsService.findByRoomId(roomsEntity.getId(), Consts.IS_VALID, Consts.IS_NOT_DEL);
+                        List<BedsEntity> bedsEntityList = bedsService.findAllByRoomId(roomsEntity.getId(), Consts.BED_STATUS_EMPTY, Consts.IS_VALID, Consts.IS_NOT_DEL);
                         Integer curUserIndex = 0;
                         for (BedsEntity bedsEntity : bedsEntityList) {
-                            if (bedsEntity.getStatus() == Consts.BED_STATUS_EMPTY) {
-                                bedsEntity.setUid(usersEntityList.get(curUserIndex).getUid());
-                                bedsEntity.setStatus(Consts.BED_STATUS_USED);
-                                bedsService.save(bedsEntity);
-                                curUserIndex += 1;
-                                if (curUserIndex >= usersEntityList.size()) {
-                                    break;
-                                }
+                            bedsEntity.setUid(usersEntityList.get(curUserIndex).getUid());
+                            bedsEntity.setStatus(Consts.BED_STATUS_USED);
+                            bedsService.save(bedsEntity);
+                            curUserIndex += 1;
+                            if (curUserIndex >= usersEntityList.size()) {
+                                break;
                             }
                         }
                         // 设置状态

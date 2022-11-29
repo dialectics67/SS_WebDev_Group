@@ -22,6 +22,8 @@ public interface GroupsService {
 
     Optional<GroupsEntity> findById(Integer id);
 
+    Optional<GroupsEntity> findByInviteCode(String inviteCode);
+
     List<GroupsEntity> findById(Collection<Integer> ids);
 
 }

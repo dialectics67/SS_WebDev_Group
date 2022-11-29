@@ -144,7 +144,7 @@ public class RoomController {
                 roomId2BuildingId.put(roomsEntity.getId(), roomsEntity.getBuildingId());
             }
             // 分类所有的合法房间
-            List<BedsEntity> bedsEntityIterable1 = bedsService.findByRoomId(roomIdSet, Consts.IS_VALID, Consts.IS_NOT_DEL);
+            List<BedsEntity> bedsEntityIterable1 = bedsService.findAllByRoomId(roomIdSet, Consts.IS_VALID, Consts.IS_NOT_DEL);
             Map<Integer, Integer> buildingId2BedNum = new HashMap<>();
             for (BedsEntity bedsEntity : bedsEntityIterable1) {
                 Integer buildingId = roomId2BuildingId.get(bedsEntity.getRoomId());

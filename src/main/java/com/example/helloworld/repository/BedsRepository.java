@@ -16,7 +16,7 @@ public interface BedsRepository extends CrudRepository<BedsEntity, Integer> {
 
     List<BedsEntity> findAllByRoomIdInAndIsValidAndIsDel(Collection<Integer> roomId, Integer isValid, Integer isDel);
 
-    List<BedsEntity> findAllByRoomIdAndIsValidAndIsDel(Integer roomId, Integer isValid, Integer isDel);
+    List<BedsEntity> findAllByRoomIdAndStatusAndIsValidAndIsDel(Integer roomId, Integer status, Integer isValid, Integer isDel);
 
     Optional<BedsEntity> findByUidAndStatusAndIsValidAndIsDel(Integer uid, Integer status, Integer is_valid, Integer is_del);
 

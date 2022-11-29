@@ -24,6 +24,8 @@ public interface AuthService {
 
     Optional<AuthEntity> findByUsernameAndType(String username, Integer type);
 
+    Optional<AuthEntity> findByUidAndType(Integer uid, Integer type);
+
     List<AuthEntity> findById(Collection<Integer> ids);
 
 }

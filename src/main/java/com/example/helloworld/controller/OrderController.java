@@ -60,6 +60,12 @@ public class OrderController {
             res.put("message", "building_id不存在");
             return new ObjectMapper().writeValueAsString(res);
         }
+        // 判断自己是否为队长
+        if (groupsUserEntityOptional.isPresent() && groupsUserEntityOptional.get().getIsCreator() == Consts.GROUP_USER_IS_NOT_CREATOR) {
+            res.put("code", 515103);
+            res.put("message", "只有队长有权提交订单");
+            return new ObjectMapper().writeValueAsString(res);
+        }
         // 生成订单
         OrdersEntity ordersEntity = new OrdersEntity();
         // 填写基本数据
@@ -76,17 +82,6 @@ public class OrderController {
         rabbitTemplate.convertAndSend(RabbitConsts.SIMPLE_MODE_QUEUE_SUBMISSION, ordersEntity);
         // 返回order_id
         resData.put("order_id", ordersEntity.getId());
-        return new ObjectMapper().writeValueAsString(res);
-    }
-
-    public String process() throws JsonProcessingException {
-        // 最终返回的对象
-        Map<String, Object> res = new HashMap<>();
-        Map<String, Object> resData = new HashMap<>();
-        res.put("data", resData);
-        res.put("code", 200);
-        res.put("message", "操作成功");
-
         return new ObjectMapper().writeValueAsString(res);
     }
 

@@ -16,6 +16,12 @@ public class Consts {
     public static int ORDER_STATUS_OK = 1;  // 订单处理状态，成功
     public static int ORDER_STATUS_FAILED = 2;  // 订单处理状态，失败
 
+    public static int GROUP_STATUS_OK = 1;    // 组队表状态 成功
+    public static int GROUP_STATUS_FAILED = 0;    // 组队表状态 失败
+
+    public static int GROUP_USER_IS_NOT_CREATOR = 0; // 队伍成员是否是创建者， 否
+    public static int GROUP_USER_IS_CREATOR = 1; // 队伍成员是否是创建者， 是
+
     public static int BED_STATUS_EMPTY = 0; // 表示床位的状态，未使用
     public static int BED_STATUS_USED = 1; // 表示床位的状态，使用
 

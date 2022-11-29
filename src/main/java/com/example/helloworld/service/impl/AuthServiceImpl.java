@@ -47,6 +47,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public Optional<AuthEntity> findByUidAndType(Integer uid, Integer type) {
+        return authRepository.findByUidAndType(uid, type);
+    }
+
+    @Override
     public List<AuthEntity> findById(Collection<Integer> ids) {
         Iterable<AuthEntity> iterable = authRepository.findAllById(ids);
         return StreamSupport.stream(iterable.spliterator(), false)

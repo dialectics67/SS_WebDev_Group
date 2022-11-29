@@ -42,6 +42,11 @@ public class GroupsServiceImpl implements GroupsService {
     }
 
     @Override
+    public Optional<GroupsEntity> findByInviteCode(String inviteCode) {
+        return groupsRepository.findByInviteCode(inviteCode);
+    }
+
+    @Override
     public List<GroupsEntity> findById(Collection<Integer> ids) {
         Iterable<GroupsEntity> iterable = groupsRepository.findAllById(ids);
         return StreamSupport.stream(iterable.spliterator(), false)
