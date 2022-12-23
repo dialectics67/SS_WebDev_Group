@@ -24,7 +24,11 @@ public interface GroupsUserService {
 
     List<GroupsUserEntity> findById(Collection<Integer> ids);
 
-    Optional<GroupsUserEntity> findByUid(Integer uid, Integer is_del);
+    List<GroupsUserEntity> findByUid(Integer uid);
+
+    Optional<GroupsUserEntity> findByUidOnlyNotDel(Integer uid);
+
+    List<GroupsUserEntity> findAllByUidAndGroupId(Integer uid, Integer groupId);
 
     List<GroupsUserEntity> findAllByGroupIdAndIsDel(Integer group_id, Integer is_del);
 }

@@ -24,6 +24,8 @@ public interface StudentInfoService {
 
     Optional<StudentInfoEntity> findByUid(Integer uid);
 
+    Optional<StudentInfoEntity> findByStudentId(String stuId);
+
     List<StudentInfoEntity> findById(Collection<Integer> ids);
 
 }

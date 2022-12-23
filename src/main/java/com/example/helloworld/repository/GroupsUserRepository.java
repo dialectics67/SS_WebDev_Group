@@ -12,4 +12,8 @@ public interface GroupsUserRepository extends CrudRepository<GroupsUserEntity, I
     List<GroupsUserEntity> findAllByGroupIdAndIsDel(Integer group_id, Integer is_del);
 
     Optional<GroupsUserEntity> findByUidAndIsDel(Integer uid, Integer is_del);
+
+    List<GroupsUserEntity> findAllByUidAndGroupId(Integer uid, Integer groupId);
+
+    List<GroupsUserEntity> findAllByUid(Integer uid);
 }

@@ -44,10 +44,6 @@ public class RoomsServiceImpl implements RoomsService {
         return roomsRepository.findAllByGenderAndIsValidAndIsDelOrderByOrderNum(gender, is_valid, is_del);
     }
 
-    @Override
-    public List<RoomsEntity> findAllByBuildingIdAndGender(Collection<Integer> buildingIds, Integer gender, Integer is_valid, Integer is_del) {
-        return roomsRepository.findAllByBuildingIdInAndGenderAndIsValidAndIsDelOrderByOrderNum(buildingIds, gender, is_valid, is_del);
-    }
 
     @Override
     public Optional<RoomsEntity> findById(Integer id) {

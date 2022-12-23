@@ -4,11 +4,9 @@ package com.example.helloworld.controller;
 import com.example.helloworld.constants.Consts;
 import com.example.helloworld.entity.GroupsEntity;
 import com.example.helloworld.entity.GroupsUserEntity;
+import com.example.helloworld.entity.StudentInfoEntity;
 import com.example.helloworld.entity.UsersEntity;
-import com.example.helloworld.service.GroupsService;
-import com.example.helloworld.service.GroupsUserService;
-import com.example.helloworld.service.SysService;
-import com.example.helloworld.service.UsersService;
+import com.example.helloworld.service.*;
 import com.example.helloworld.utils.CommonUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,11 +33,15 @@ public class TeamController {
     private SysService sysService;
     @Autowired
     private GroupsUserService groupsUserService;
-
+    @Autowired
+    private StudentInfoService studentInfoService;
 
     @PostMapping("/create")
     @ResponseBody
-    public String create(@RequestParam("name") String name, @RequestParam("describe") String describe, HttpSession session) throws JsonProcessingException {
+    public String create(@RequestBody Map<String, String> requestBody, HttpSession session) throws JsonProcessingException {
+        // 获取参数
+        String name = requestBody.get("name");
+        String describe = requestBody.get("describe");
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
@@ -49,7 +51,7 @@ public class TeamController {
 
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
         // 判断是否存在仍然有效的用户
-        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUid(uid, Consts.IS_NOT_DEL);
+        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUidOnlyNotDel(uid);
         if (groupsUserEntityOptional.isPresent()) {
             res.put("code", 514101);
             res.put("message", "用户已经在其他队伍中");
@@ -82,6 +84,8 @@ public class TeamController {
     @PostMapping("/del")
     @ResponseBody
     public String del(HttpSession session) throws JsonProcessingException {
+        // 获取参数
+//        Integer team_id = Integer.valueOf(requestBody.get("team_id"));
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
@@ -91,7 +95,7 @@ public class TeamController {
         // 获取Uid
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
         // 获取自己当前所处的队伍
-        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUid(uid, Consts.IS_NOT_DEL);
+        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUidOnlyNotDel(uid);
         if (!groupsUserEntityOptional.isPresent()) {
             res.put("code", 514201);
             res.put("message", "自己没有组队");
@@ -125,7 +129,10 @@ public class TeamController {
 
     @PostMapping("/join")
     @ResponseBody
-    public String join(@RequestParam("invite_code") String invite_code, HttpSession session) throws JsonProcessingException {
+    public String join(@RequestBody Map<String, String> requestBody, HttpSession session) throws JsonProcessingException {
+        // 获取参数
+        String invite_code = requestBody.get("invite_code");
+
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
@@ -136,7 +143,7 @@ public class TeamController {
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
         UsersEntity usersEntity = usersService.findById(uid).get();
         // 判断用户是否在其他队伍当中
-        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUid(uid, Consts.IS_NOT_DEL);
+        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUidOnlyNotDel(uid);
         if (groupsUserEntityOptional.isPresent()) {
             res.put("code", 514301);
             res.put("message", "用户当前正处于其他队伍当中");
@@ -187,6 +194,8 @@ public class TeamController {
     @PostMapping("/quit")
     @ResponseBody
     public String quit(HttpSession session) throws JsonProcessingException {
+        // 获取参数
+//        Integer team_id = Integer.valueOf(requestBody.get("team_id"));
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
@@ -196,7 +205,7 @@ public class TeamController {
 
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
         // 判断自己是否在队伍中
-        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUid(uid, Consts.IS_NOT_DEL);
+        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUidOnlyNotDel(uid);
         if (!groupsUserEntityOptional.isPresent()) {
             res.put("code", 514301);
             res.put("message", "用户不在队伍中");
@@ -227,7 +236,7 @@ public class TeamController {
         res.put("code", 200);
         res.put("message", "操作成功");
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
-        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUid(uid, Consts.IS_NOT_DEL);
+        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUidOnlyNotDel(uid);
         if (!groupsUserEntityOptional.isPresent()) {
             res.put("code", 514501);
             res.put("message", "自己没有队伍");
@@ -245,7 +254,8 @@ public class TeamController {
             Map<String, Object> tmp = new HashMap<>();
             members.add(tmp);
             UsersEntity usersEntity = usersService.findById(groupsUser.getUid()).get();
-            tmp.put("student_id", usersEntity.getUid());
+            StudentInfoEntity studentInfoEntity = studentInfoService.findByUid(usersEntity.getUid()).get();
+            tmp.put("student_id", studentInfoEntity.getStudentid());
             tmp.put("student_name", usersEntity.getName());
         }
         return new ObjectMapper().writeValueAsString(res);
@@ -253,7 +263,8 @@ public class TeamController {
 
     @PostMapping("/transfer")
     @ResponseBody
-    public String transfer(String student_id, HttpSession session) throws JsonProcessingException {
+    public String transfer(@RequestBody Map<String, String> requestBody, HttpSession session) throws JsonProcessingException {
+        String student_id = requestBody.get("student_id");
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
@@ -262,7 +273,7 @@ public class TeamController {
         res.put("message", "操作成功");
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
         // 判断自己是否在队伍中
-        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUid(uid, Consts.IS_NOT_DEL);
+        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUidOnlyNotDel(uid);
         if (!groupsUserEntityOptional.isPresent()) {
             res.put("code", 514601);
             res.put("message", "自己不处于队伍");
@@ -275,11 +286,18 @@ public class TeamController {
             res.put("message", "自己并非队长");
             return new ObjectMapper().writeValueAsString(res);
         }
-        // 判断转让目标是否是队友
-        Optional<GroupsUserEntity> targetUserOptional = groupsUserService.findByUid(Integer.valueOf(student_id), Consts.IS_NOT_DEL);
-        if (!targetUserOptional.isPresent()) {
+        // student_id是学号，需要先转化成uid
+        Optional<StudentInfoEntity> targetStudentInfo = studentInfoService.findByStudentId(student_id);
+        if (!targetStudentInfo.isPresent()) {
             res.put("code", 514603);
             res.put("message", "转让目标不存在");
+            return new ObjectMapper().writeValueAsString(res);
+        }
+        // 判断转让目标是否是队友
+        Optional<GroupsUserEntity> targetUserOptional = groupsUserService.findByUidOnlyNotDel(targetStudentInfo.get().getUid());
+        if (!targetUserOptional.isPresent()) {
+            res.put("code", 514603);
+            res.put("message", "转让目标不在队伍中");
             return new ObjectMapper().writeValueAsString(res);
         }
         // 判断转让目标是否是队友

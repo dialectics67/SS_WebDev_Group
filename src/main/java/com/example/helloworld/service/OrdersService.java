@@ -25,5 +25,7 @@ public interface OrdersService {
     List<OrdersEntity> findById(Collection<Integer> ids);
 
     List<OrdersEntity> findAllByUid(Integer uid);
+
+    List<OrdersEntity> findAllByGroupId(Integer groupId);
 }
 

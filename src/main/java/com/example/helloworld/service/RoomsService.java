@@ -25,8 +25,6 @@ public interface RoomsService {
 
     List<RoomsEntity> findAllByGender(Integer gender, Integer is_valid, Integer is_del);
 
-    List<RoomsEntity> findAllByBuildingIdAndGender(Collection<Integer> buildingIds, Integer gender, Integer is_valid, Integer is_del);
-
     Optional<RoomsEntity> findById(Integer id);
 
     List<RoomsEntity> findById(Collection<Integer> ids);

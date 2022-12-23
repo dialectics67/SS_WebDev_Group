@@ -37,7 +37,10 @@ public class OrderController {
 
     @PostMapping("/create")
     @ResponseBody
-    public String create(@RequestParam("group_id") Integer group_id, @RequestParam("building_id") Integer building_id, HttpSession session) throws JsonProcessingException {
+    public String create(@RequestBody Map<String, String> requestBody, HttpSession session) throws JsonProcessingException {
+        // 获取参数
+        Integer group_id = Integer.valueOf(requestBody.get("group_id"));
+        Integer building_id = Integer.valueOf(requestBody.get("building_id"));
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
@@ -47,7 +50,7 @@ public class OrderController {
         // 获取用户id
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
         // 检查group_id 是否一致
-        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUid(uid, Consts.IS_NOT_DEL);
+        Optional<GroupsUserEntity> groupsUserEntityOptional = groupsUserService.findByUidOnlyNotDel(uid);
         if ((!groupsUserEntityOptional.isPresent() && group_id != 0) ||
                 (groupsUserEntityOptional.isPresent() && !Objects.equals(groupsUserEntityOptional.get().getGroupId(), group_id))) {
             res.put("code", 515101);
@@ -61,11 +64,11 @@ public class OrderController {
             return new ObjectMapper().writeValueAsString(res);
         }
         // 判断自己是否为队长
-        if (groupsUserEntityOptional.isPresent() && groupsUserEntityOptional.get().getIsCreator() == Consts.GROUP_USER_IS_NOT_CREATOR) {
-            res.put("code", 515103);
-            res.put("message", "只有队长有权提交订单");
-            return new ObjectMapper().writeValueAsString(res);
-        }
+//        if (groupsUserEntityOptional.isPresent() && groupsUserEntityOptional.get().getIsCreator() == Consts.GROUP_USER_IS_NOT_CREATOR) {
+//            res.put("code", 515103);
+//            res.put("message", "只有队长有权提交订单");
+//            return new ObjectMapper().writeValueAsString(res);
+//        }
         // 生成订单
         OrdersEntity ordersEntity = new OrdersEntity();
         // 填写基本数据
@@ -98,8 +101,13 @@ public class OrderController {
         resData.put("rows", rows);
         // 获取用户id
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
+        // 获取以单人形式提交的订单
         List<OrdersEntity> ordersEntityList = ordersService.findAllByUid(uid);
         for (OrdersEntity ordersEntity : ordersEntityList) {
+            // 暂不处理以组队形式提交的订单
+            if (ordersEntity.getGroupId() != 0) {
+                continue;
+            }
             Map<String, Object> tmp = new HashMap<>();
             tmp.put("order_id", ordersEntity.getId());
             Integer group_id = ordersEntity.getGroupId();
@@ -113,6 +121,39 @@ public class OrderController {
             tmp.put("result_content", ordersEntity.getResultContent());
             tmp.put("status", ordersEntity.getStatus());
             rows.add(tmp);
+        }
+        // 获取以组队形式提交的且涉及到当前成员的订单
+        // 首先在group members通过uid查找到(uid, group_id, join_time, leave_time)
+        List<GroupsUserEntity> groupsUserEntityList = groupsUserService.findByUid(uid);
+        // 依此判断与每一个有关的订单
+        for (GroupsUserEntity groupsUserEntity : groupsUserEntityList) {
+            Integer groupId = groupsUserEntity.getGroupId();
+            Integer joinTime = groupsUserEntity.getJoinTime();
+            Integer leaveTime = groupsUserEntity.getLeaveTime();
+            if (leaveTime == 0) {
+                leaveTime = Integer.MAX_VALUE;
+            }
+            // 根据groupId 查询有关的所有订单
+            List<OrdersEntity> ordersEntityList1 = ordersService.findAllByGroupId(groupId);
+            for (OrdersEntity ordersEntity : ordersEntityList1) {
+                // 判断该订单提交时，用户是否在队伍中
+                Integer submitTime = ordersEntity.getSubmitTime();
+                if (submitTime > joinTime && submitTime < leaveTime) {
+                    Map<String, Object> tmp = new HashMap<>();
+                    tmp.put("order_id", ordersEntity.getId());
+                    Integer group_id = ordersEntity.getGroupId();
+                    if (group_id == 0) {
+                        tmp.put("group_name", "0");
+                    } else {
+                        tmp.put("group_name", groupsService.findById(group_id).get().getName());
+                    }
+                    tmp.put("building_name", buildingsService.findById(ordersEntity.getBuildingId()).get().getName());
+                    tmp.put("submit_time", ordersEntity.getSubmitTime());
+                    tmp.put("result_content", ordersEntity.getResultContent());
+                    tmp.put("status", ordersEntity.getStatus());
+                    rows.add(tmp);
+                }
+            }
         }
         return new ObjectMapper().writeValueAsString(res);
     }
@@ -135,12 +176,44 @@ public class OrderController {
             return new ObjectMapper().writeValueAsString(res);
         }
         OrdersEntity ordersEntity = optionalOrdersEntity.get();
-        // 判断订单是否由用户发起
         Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
-        if (!Objects.equals(ordersEntity.getUid(), uid)) {
-            res.put("code", 515202);
-            res.put("message", "无权获取该订单信息");
-            return new ObjectMapper().writeValueAsString(res);
+        // 判断订单是否是单人订单
+        if (ordersEntity.getGroupId() == 0) {
+            // 单人订单判断是否由本人提交
+            if (!Objects.equals(ordersEntity.getUid(), uid)) {
+                res.put("code", 515202);
+                res.put("message", "无权获取该订单信息-订单是单人订单，但您不是提交人");
+                return new ObjectMapper().writeValueAsString(res);
+            }
+        } else {
+            // 组队订单，判断时间区间是否吻合
+            List<GroupsUserEntity> groupsUserEntityList = groupsUserService.findAllByUidAndGroupId(uid, ordersEntity.getGroupId());
+            if (groupsUserEntityList.isEmpty()) {
+                // 该队伍所有历史成员中没有该人
+                res.put("code", 515202);
+                res.put("message", "无权获取该订单信息-订单是组队订单，但历史成员没有该人");
+                return new ObjectMapper().writeValueAsString(res);
+            } else {
+                Boolean flag = Boolean.FALSE;
+                for (GroupsUserEntity groupsUserEntity : groupsUserEntityList) {
+                    // 判断时间区间是否覆盖
+                    Integer submitTime = ordersEntity.getSubmitTime();
+                    Integer joinTime = groupsUserEntity.getJoinTime();
+                    Integer leaveTime = groupsUserEntity.getLeaveTime();
+                    if (submitTime <= joinTime || (leaveTime != 0 && submitTime >= leaveTime)) {
+                        flag = Boolean.FALSE;
+                    } else {
+                        flag = Boolean.TRUE;
+                    }
+
+                }
+                if (flag == Boolean.FALSE) {
+                    res.put("code", 515202);
+                    res.put("message", "无权获取该订单信息-订单提交时，成员不在队伍中");
+                    return new ObjectMapper().writeValueAsString(res);
+                }
+
+            }
         }
         // 成功，返回订单信息
         resData.put("status", ordersEntity.getStatus());

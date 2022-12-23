@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
@@ -30,7 +30,6 @@ public class RoomController {
     private RoomsService roomsService;
     @Autowired
     private BuildingsService buildingsService;
-
     @Autowired
     private BedsService bedsService;
 
@@ -82,9 +81,9 @@ public class RoomController {
         return new ObjectMapper().writeValueAsString(res);
     }
 
-    @GetMapping("/room/{id}")
+    @GetMapping("/room")
     @ResponseBody
-    public String room(@PathVariable("id") Integer roomId) throws JsonProcessingException {
+    public String room(@RequestParam("id") Integer roomId, HttpSession session) throws JsonProcessingException {
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
@@ -92,31 +91,43 @@ public class RoomController {
         res.put("code", 200);
         res.put("message", "操作成功");
         Optional<RoomsEntity> optionalRoomsEntity = roomsService.findById(roomId);
-        if (optionalRoomsEntity.isPresent()) {
-            RoomsEntity roomsEntity = optionalRoomsEntity.get();
-            if (roomsEntity.getIsDel() == Consts.IS_DEL) {
-                res.put("code", 513302);
-                res.put("message", "房间已被删除");
-            } else if (roomsEntity.getIsValid() == Consts.IS_NOT_VALID) {
-                res.put("code", 513303);
-                res.put("message", "房间不可用");
-            } else {
-                resData.put("name", roomsEntity.getName());
-                resData.put("gender", roomsEntity.getGender());
-                resData.put("describe", roomsEntity.getDescribe());
-                resData.put("image_url", roomsEntity.getImageUrl());
-                resData.put("building_id", roomsEntity.getBuildingId());
-            }
+        Integer uid = (Integer) session.getAttribute(Consts.SESSION_USERS_UID);
+        UsersEntity userEntity = usersService.findById(uid).get();
+        Optional<BedsEntity> bedsEntityOptional = bedsService.findByUidAndStatusAndIsValidAndIsDel(uid, Consts.BED_STATUS_USED, Consts.IS_VALID, Consts.IS_NOT_DEL);
+        if (!bedsEntityOptional.isPresent()) {
+            res.put("code", 513304);
+            res.put("message", "自己不是该房间的user");
         } else {
-            res.put("code", 513301);
-            res.put("message", "房间id不存在");
+            Integer userUsedRoomId = bedsEntityOptional.get().getRoomId();
+            if (optionalRoomsEntity.isPresent()) {
+                RoomsEntity roomsEntity = optionalRoomsEntity.get();
+                if (!Objects.equals(roomsEntity.getId(), userUsedRoomId)) {
+                    res.put("code", 513304);
+                    res.put("message", "自己不是该房间的user");
+                } else if (roomsEntity.getIsDel() == Consts.IS_DEL) {
+                    res.put("code", 513302);
+                    res.put("message", "房间已被删除");
+                } else if (roomsEntity.getIsValid() == Consts.IS_NOT_VALID) {
+                    res.put("code", 513303);
+                    res.put("message", "房间不可用");
+                } else {
+                    resData.put("name", roomsEntity.getName());
+                    resData.put("gender", roomsEntity.getGender());
+                    resData.put("describe", roomsEntity.getDescribe());
+                    resData.put("image_url", roomsEntity.getImageUrl());
+                    resData.put("building_id", roomsEntity.getBuildingId());
+                }
+            } else {
+                res.put("code", 513301);
+                res.put("message", "房间id不存在");
+            }
         }
         return new ObjectMapper().writeValueAsString(res);
     }
 
     @GetMapping("/empty")
     @ResponseBody
-    public String empty(Integer gender) throws JsonProcessingException {
+    public String empty() throws JsonProcessingException {
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
@@ -125,43 +136,46 @@ public class RoomController {
         res.put("message", "操作成功");
         res.put("data", resData);
         resData.put("row", row);
-        if (gender != 0 && gender != 1) {
-            res.put("code", 513401);
-            res.put("message", "性别非法");
-        } else {
-            // 查找合法的building id, 可优化
-            List<BuildingsEntity> buildingsEntityIterable = buildingsService.findAllByIsValidAndIsDelOrderByOrderNum(Consts.IS_VALID, Consts.IS_NOT_DEL);
-            Set<Integer> buildingIdSet = new HashSet<>();
-            for (BuildingsEntity buildingsEntity : buildingsEntityIterable) {
-                buildingIdSet.add(buildingsEntity.getId());
-            }
-            // 查找合法的room id, 可优化
-            List<RoomsEntity> roomsEntityIterable = roomsService.findAllByBuildingIdAndGender(buildingIdSet, gender, Consts.IS_VALID, Consts.IS_NOT_DEL);
-            Set<Integer> roomIdSet = new HashSet<>();
-            Map<Integer, Integer> roomId2BuildingId = new HashMap<>();
-            for (RoomsEntity roomsEntity : roomsEntityIterable) {
-                roomIdSet.add(roomsEntity.getId());
-                roomId2BuildingId.put(roomsEntity.getId(), roomsEntity.getBuildingId());
-            }
-            // 分类所有的合法房间
-            List<BedsEntity> bedsEntityIterable1 = bedsService.findAllByRoomId(roomIdSet, Consts.IS_VALID, Consts.IS_NOT_DEL);
-            Map<Integer, Integer> buildingId2BedNum = new HashMap<>();
-            for (BedsEntity bedsEntity : bedsEntityIterable1) {
-                Integer buildingId = roomId2BuildingId.get(bedsEntity.getRoomId());
-                Integer bedNum = buildingId2BedNum.get(buildingId);
-                if (bedNum == null) {
-                    bedNum = 0;
-                }
-                buildingId2BedNum.put(buildingId, bedNum + 1);
-            }
 
-            for (Map.Entry<Integer, Integer> entry : buildingId2BedNum.entrySet()) {
-                Map<String, Integer> tmp = new HashMap<>();
-                tmp.put("building_id", entry.getKey());
-                tmp.put("gender", gender);
-                tmp.put("cnt", entry.getValue());
-                row.add(tmp);
+        // 获取有效的空床位
+        List<BedsEntity> bedsEntityList = bedsService.findAll(Consts.BED_STATUS_EMPTY, Consts.IS_VALID, Consts.IS_NOT_DEL);
+        Map<Integer, Integer> roomId2BedCount = new HashMap<>();
+        // 遍历床位统计 房间->床位数量
+        for (BedsEntity bedsEntity : bedsEntityList) {
+            roomId2BedCount.put(bedsEntity.getRoomId(), roomId2BedCount.getOrDefault(bedsEntity.getRoomId(), 0) + 1);
+        }
+
+        // 获取有效的房间
+        List<RoomsEntity> roomsEntityList = roomsService.findAllByIsValidAndIsDelOrderByOrderNum(Consts.IS_VALID, Consts.IS_NOT_DEL);
+        // 统计 building->bedCount
+        Map<Integer, Integer> maleBuildingId2BedCount = new HashMap<>();
+        Map<Integer, Integer> femaleBuildingId2BedCount = new HashMap<>();
+        for (RoomsEntity roomsEntity : roomsEntityList) {
+            Integer itRoomBedCount = roomId2BedCount.get(roomsEntity.getId());
+            if (roomsEntity.getGender() == Consts.GENDER_FEMALE) {
+                femaleBuildingId2BedCount.put(roomsEntity.getBuildingId(), femaleBuildingId2BedCount.getOrDefault(roomsEntity.getBuildingId(), 0) + itRoomBedCount);
+            } else {
+                maleBuildingId2BedCount.put(roomsEntity.getBuildingId(), maleBuildingId2BedCount.getOrDefault(roomsEntity.getBuildingId(), 0) + itRoomBedCount);
             }
+        }
+
+        // 获取有效的building
+        List<BuildingsEntity> buildingsEntityList = buildingsService.findAllByIsValidAndIsDelOrderByOrderNum(Consts.IS_VALID, Consts.IS_NOT_DEL);
+        // 统计有效building的male bed count, female bed count
+        for (BuildingsEntity buildingsEntity : buildingsEntityList) {
+            Integer maleBedCount = maleBuildingId2BedCount.getOrDefault(buildingsEntity.getId(), 0);
+            Integer femaleBedCount = femaleBuildingId2BedCount.getOrDefault(buildingsEntity.getId(), 0);
+
+            Map<String, Integer> tmp = new HashMap<>();
+            tmp.put("building_id", buildingsEntity.getId());
+            tmp.put("gender", Consts.GENDER_MALE);
+            tmp.put("cnt", maleBedCount);
+            row.add(tmp);
+            Map<String, Integer> tmp1 = new HashMap<>();
+            tmp1.put("building_id", buildingsEntity.getId());
+            tmp1.put("gender", Consts.GENDER_FEMALE);
+            tmp1.put("cnt", femaleBedCount);
+            row.add(tmp1);
         }
         return new ObjectMapper().writeValueAsString(res);
     }

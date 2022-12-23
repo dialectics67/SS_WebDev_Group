@@ -69,38 +69,41 @@ public class AuthController {
 
     @PostMapping("/login")
     @ResponseBody
-    public String login(@RequestParam("username") String username, @RequestParam("password") String password, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+    public String login(@RequestBody Map<String, String> requestBody, HttpSession session, HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException {
+        // 获取参数
+        String username = requestBody.get("username");
+        String password = requestBody.get("password");
         // 最终返回的对象
         Map<String, Object> res = new HashMap<>();
         Map<String, Object> resData = new HashMap<>();
         res.put("data", resData);
         // 逻辑处理
         try {
-            // code 511001, 用户名，密码是否为空
+            // code 511101, 用户名，密码是否为空
             if (!StringUtils.hasLength(username) || !StringUtils.hasLength(password)) {
-                res.put("code", 511001);
+                res.put("code", 511101);
                 res.put("message", "学号或者密码为空");
                 return new ObjectMapper().writeValueAsString(res);
             }
-            // code 511002, 用户名，密码长度是否超出限制
+            // code 511102, 用户名，密码长度是否超出限制
             if (username.length() > Consts.MAX_LEN_USERNAME || password.length() > Consts.MAX_LEN_PASSWORD) {
-                res.put("code", 511002);
+                res.put("code", 511102);
                 res.put("message", "用户名或者密码长度超限");
                 return new ObjectMapper().writeValueAsString(res);
             }
             // 根据username查找auth，type先固定为零
             Optional<AuthEntity> optionalAuthEntity = authService.findByUsernameAndType(username, 0);
-            // code 511003, 用户名不存在
+            // code 511103, 用户名不存在
             if (!optionalAuthEntity.isPresent()) {
-                res.put("code", "511003");
+                res.put("code", "511103");
                 res.put("message", "用户名不存在");
                 return new ObjectMapper().writeValueAsString(res);
             }
             AuthEntity authEntity = optionalAuthEntity.get();
-            // code 511004, 密码错误
+            // code 511104, 密码错误
             String md5Password = commonUtil.getMD5(password);
             if (!md5Password.equals(authEntity.getPassword())) {
-                res.put("code", "511004");
+                res.put("code", "511104");
                 res.put("message", "密码错误");
                 return new ObjectMapper().writeValueAsString(res);
             }
@@ -116,7 +119,7 @@ public class AuthController {
             resData.put("access_token", access_token);
             resData.put("token_type", "bearer");
             resData.put("expires_in", TokenSettingConsts.accessTokenExpireTime);
-            resData.put("scope", "app");
+            resData.put("scope", "laborum");
             resData.put("refresh_token", refresh_token);
         } catch (Exception e) {
             res.put("code", 510000);

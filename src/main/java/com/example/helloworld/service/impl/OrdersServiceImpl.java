@@ -53,5 +53,10 @@ public class OrdersServiceImpl implements OrdersService {
         return ordersRepository.findAllByUid(uid);
     }
 
+    @Override
+    public List<OrdersEntity> findAllByGroupId(Integer groupId) {
+        return ordersRepository.findAllByGroupId(groupId);
+    }
+
 }
 

@@ -25,6 +25,9 @@ public class Consts {
     public static int BED_STATUS_EMPTY = 0; // 表示床位的状态，未使用
     public static int BED_STATUS_USED = 1; // 表示床位的状态，使用
 
+    public static int GENDER_FEMALE = 0; // 表示性别，女性
+    public static int GENDER_MALE = 1; // 表示性别，女性
+
     public static int UID_NULL = 0; // 无效的uid
 
     public static int MAX_LEN_USERNAME = 50;  // 用户名的最大长度

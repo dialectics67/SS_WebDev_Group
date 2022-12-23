@@ -160,6 +160,7 @@ public class OrdersHandler {
                 }
             }
             // 写回订单
+            orderEntity.setFinishTime(commonUtil.getUnixTimestamp());
             ordersService.save(orderEntity);
             // 通知处理完成
             channel.basicAck(deliveryTag, false);

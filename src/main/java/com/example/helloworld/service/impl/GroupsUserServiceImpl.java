@@ -1,6 +1,7 @@
 package com.example.helloworld.service.impl;
 
 
+import com.example.helloworld.constants.Consts;
 import com.example.helloworld.entity.GroupsUserEntity;
 import com.example.helloworld.repository.GroupsUserRepository;
 import com.example.helloworld.service.GroupsUserService;
@@ -49,8 +50,18 @@ public class GroupsUserServiceImpl implements GroupsUserService {
     }
 
     @Override
-    public Optional<GroupsUserEntity> findByUid(Integer uid, Integer is_del) {
-        return groupsUserRepository.findByUidAndIsDel(uid, is_del);
+    public List<GroupsUserEntity> findByUid(Integer uid) {
+        return groupsUserRepository.findAllByUid(uid);
+    }
+
+    @Override
+    public Optional<GroupsUserEntity> findByUidOnlyNotDel(Integer uid) {
+        return groupsUserRepository.findByUidAndIsDel(uid, Consts.IS_NOT_DEL);
+    }
+
+    @Override
+    public List<GroupsUserEntity> findAllByUidAndGroupId(Integer uid, Integer groupId) {
+        return groupsUserRepository.findAllByUidAndGroupId(uid, groupId);
     }
 
     @Override

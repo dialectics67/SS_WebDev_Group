@@ -7,7 +7,6 @@ import com.example.helloworld.service.BedsService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,8 +34,8 @@ public class BedsServiceImpl implements BedsService {
     }
 
     @Override
-    public List<BedsEntity> findAllByIsValidAndIsDelOrderByOrderNum(Integer is_valid, Integer is_del) {
-        return bedsRepository.findAllByIsValidAndIsDelOrderByOrderNum(is_valid, is_del);
+    public List<BedsEntity> findAll(Integer status, Integer is_valid, Integer is_del) {
+        return bedsRepository.findAllByStatusAndIsValidAndIsDelOrderByOrderNum(status, is_valid, is_del);
     }
 
     @Override
@@ -46,12 +45,7 @@ public class BedsServiceImpl implements BedsService {
 
     @Override
     public List<BedsEntity> findAllByRoomId(Integer roomId, Integer status, Integer is_valid, Integer is_del) {
-        return bedsRepository.findAllByRoomIdAndStatusAndIsValidAndIsDel(roomId, status, is_valid, is_del);
-    }
-
-    @Override
-    public List<BedsEntity> findAllByRoomId(Collection<Integer> roomIds, Integer is_valid, Integer is_del) {
-        return bedsRepository.findAllByRoomIdInAndIsValidAndIsDel(roomIds, is_valid, is_del);
+        return bedsRepository.findAllByRoomIdAndStatusAndIsValidAndIsDelOrderByOrderNum(roomId, status, is_valid, is_del);
     }
 
     @Override
@@ -61,7 +55,7 @@ public class BedsServiceImpl implements BedsService {
 
     @Override
     public Integer countByRoomIdAndStatusAndIsValidAndIsDel(Integer roomId, Integer status, Integer isValid, Integer isDel) {
-        return bedsRepository.countByRoomIdAndStatusAndIsValidAndIsDel(roomId, status, isValid, isDel);
+        return bedsRepository.findAllByRoomIdAndStatusAndIsValidAndIsDelOrderByOrderNum(roomId, status, isValid, isDel).size();
     }
 }
 

@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface StudentInfoRepository extends CrudRepository<StudentInfoEntity, Integer> {
 
     Optional<StudentInfoEntity> findByUid(Integer uid);
+
+    Optional<StudentInfoEntity> findByStudentid(String studentid);
 }

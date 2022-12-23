@@ -108,6 +108,7 @@ public class UserController {
         BedsEntity bedsEntity = bedsEntityOptional.get();
         RoomsEntity roomsEntity = roomsService.findById(bedsEntity.getRoomId()).get();
         resData.put("roomName", roomsEntity.getName());
+        resData.put("roomId", roomsEntity.getId());
         List<Map<String, Object>> members = new ArrayList<>();
         // 查找队友
         List<BedsEntity> bedsEntityList = bedsService.findAllByRoomId(roomsEntity.getId(), Consts.BED_STATUS_USED, Consts.IS_VALID, Consts.IS_NOT_DEL);

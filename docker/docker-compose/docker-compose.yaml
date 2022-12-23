@@ -1,0 +1,75 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: tmp-mysql
+    restart: on-failure
+    volumes:
+      # - ~/apps/mysql/mydir:/mydir
+      # - ~/apps/mysql/datadir:/var/lib/mysql
+      # - ~/apps/mysql/conf/my.cnf:/etc/my.cnf
+      # 数据库还原目录 可将需要还原的sql文件放在这里
+      - ~/apps/mysql/source:/docker-entrypoint-initdb.d
+    environment:
+      - "MYSQL_ROOT_PASSWORD=2MfwLib7w3trFLDowcHjtG2j"
+      - "TZ=UTC"
+    # ports:
+    #   # 使用宿主机的3306端口映射到容器的3306端口
+    #   # 宿主机：容器
+    #   - 3306:3306
+    networks:
+      - server
+
+  redis:
+    image: redis:5.0.8
+    container_name: tmp-redis
+    restart: on-failure
+    volumes:
+      - ~/apps/redis/data:/data
+      - ~/apps/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ~/apps/redis/logs:/logs
+    # ports:
+    #   - 6379:6379
+    command: redis-server --appendonly yes --requirepass 'dzBTW7!_RyxqopWH3O3#7feCdd_l6G!SspgQuM5&y^ZFdPuiSh0v!FTDMU~hrNG4J(v#)B1!ZSgMAS+VckpRJ'
+    privileged: true
+    networks:
+      - server
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: tmp-rabbitmq
+    restart: on-failure
+    volumes:
+      - ~/apps/rabbitmq/data:/data
+    # ports:
+    #   - 5672:5672
+    #   - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: w%VG%7GHU1ccg4%+fV%YWcb94V1+}g
+    networks:
+      - server
+
+  java:
+    image: registry.cn-hangzhou.aliyuncs.com/ss_web_group/ss_web_group:v4
+    restart: on-failure
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+    links:
+      - mysql
+      - redis
+      - rabbitmq
+    ports:
+      - 8088:8088
+    networks:
+      - server
+    environment:
+      # 等待后期使用
+      NOTHING: nothing
+
+networks:
+  server:
+    driver:
+      bridge

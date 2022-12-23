@@ -47,6 +47,11 @@ public class StudentInfoServiceImpl implements StudentInfoService {
     }
 
     @Override
+    public Optional<StudentInfoEntity> findByStudentId(String stuId) {
+        return studentInfoRepository.findByStudentid(stuId);
+    }
+
+    @Override
     public List<StudentInfoEntity> findById(Collection<Integer> ids) {
         Iterable<StudentInfoEntity> iterable = studentInfoRepository.findAllById(ids);
         return StreamSupport.stream(iterable.spliterator(), false)

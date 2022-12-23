@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface OrdersRepository extends CrudRepository<OrdersEntity, Integer> {
     List<OrdersEntity> findAllByUid(Integer uid);
+
+    List<OrdersEntity> findAllByGroupId(Integer groupId);
 }
